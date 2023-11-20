@@ -1,0 +1,109 @@
+function cd() {
+	builtin cd "$@"
+	if test -f .password.txt; then
+		echo "What is the password for the folder?:" 
+		read varname
+		folderpw=$(head -n 1 .password.txt)
+		enteredpw=$(hashtest $varname)
+		if [ $enteredpw !=  $folderpw ]
+		then 
+			echo "Password is incorrect"
+			cd ..
+		fi
+	fi
+}
+function rmdir() {
+	value=$(($#-1))
+	args=("$@")
+	folder=${args[$value]}
+	if test -f $folder/.password.txt; then
+		echo "What is the password for the folder?:" 
+		read varname
+		folderpw=$(head -n 1 $folder/.password.txt)
+		enteredpw=$(hashtest $varname)
+		if [ $enteredpw !=  $folderpw ]
+		then 
+			echo "Password is incorrect, cannot delete folder"
+		fi
+		if [ $enteredpw ==  $folderpw ]
+		then
+			command rmdir "$@"
+		fi
+	else
+		command rmdir "$@"
+	fi
+}
+function rm() {
+	value=$(($#-1))
+	args=("$@")
+	folder=${args[$value]}
+	if test -f $folder/.password.txt; then
+		echo "What is the password for the folder?:" 
+		read varname
+		folderpw=$(head -n 1 $folder/.password.txt)
+		enteredpw=$(hashtest $varname)
+		if [ $enteredpw !=  $folderpw ]
+		then 
+			echo "Password is incorrect, cannot delete folder"
+		fi
+		if [ $enteredpw ==  $folderpw ]
+		then
+			command rm "$@"
+		fi
+	else
+		command rm "$@"
+	fi
+}
+
+function cp() {
+	count=0
+	if [[ ! -n $1 ]];
+	then
+		command cp "$@"
+	else
+		i=$(($#-1))
+		args=("$@")
+		while [ $i -ge 0 ];
+		do
+			folder=${args[$i]}
+			if test -f $folder/.password.txt; then
+				echo "Cannot use copy with a secure folder! Please use \"mv\" command instead"
+				count=1
+			fi
+			i=$(($i-1))
+		done
+		if [ $count == 0 ]; then
+			command cp "$@"
+		fi
+	fi
+}
+
+function mv() {
+	count=0
+	if [[ ! -n $1 ]];
+	then
+		command mv "$@"
+	else
+		i=$(($#-1))
+		args=("$@")
+		while [ $i -ge 0 ];
+		do
+			folder=${args[$i]}
+			if test -f $folder/.password.txt; then
+				echo "What is the password for the secure folder $folder?:" 
+				read varname
+				folderpw=$(head -n 1 $folder/.password.txt)
+				enteredpw=$(hashtest $varname)
+				if [ $enteredpw !=  $folderpw ]
+				then 
+					echo "Password is incorrect, cannot use \"mv\" with $folder"
+					count=1
+				fi
+			fi
+			i=$(($i-1))
+		done
+		if [ $count == 0 ]; then
+			command mv "$@"
+		fi
+	fi
+}
