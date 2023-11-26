@@ -115,7 +115,10 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
-PS1='\[\e[93m\][\d]\u@LoveLinux$ \[\e[0m\]'
-#some more aliases
-alias cur="ls -alp"
-alias h="cd ~/ ; ls -ldp .* | grep -v /"
+
+PS1="\[\e[93m\][\$(date +'%Y-%m-%d')] vedant@LoveLinux\[\e[m\]\$ "
+
+
+# Custom Aliases
+alias cur='l -lAF'
+alias h='ls -lA ~/.*'

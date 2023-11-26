@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# Show a directory selection dialog with zenity
+selected_folder=$(zenity --file-selection --directory --title="Select a directory")
+
+# Check if the user clicked "Cancel"
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+# Check if the selected folder contains a .password file
+password_file="$selected_folder/.password.txt"
+if [ ! -f "$password_file" ]; then
+    # Run zenity to get the password
+    password_result=$(zenity --password --title="Enter Password" --text="Enter your password:" --width=300)
+    # password=$(echo "$password_result" | tr -d '\n')  # Remove newline characters
+
+    # Check if zenity was successful
+    if [ $? -eq 0 ]; then
+        password=$(echo "$password_result" | tr -d '\n')  # Remove newline characters
+    else
+        exit 1
+    fi
+
+    python3 ~/.local/share/nautilus/commands/securefolder.py "$selected_folder" "$password"
+else
+    # Read the content of the .password file
+    folderpw=$(head -n 1 $password_file)
+
+    # Run zenity to get the password
+    password_result=$(zenity --password --title="Enter Password" --text="Enter your password:" --width=300)
+
+    # Check if zenity was successful
+    if [ $? -eq 0 ]; then
+        entered_password=$(echo "$password_result" | tr -d '\n')  # Remove newline characters
+        enteredpw=$(hashtest $entered_password)
+        # Check if entered password matches the one in the .password file
+        if [ "$enteredpw" != "$folderpw" ]; then
+            zenity --info --title="Incorrect Password" --text="Please enter correct password to continue."
+            exit 1
+        fi
+    else
+        exit 1
+    fi
+
+    zenity --info --title="Check" --text="Successfull Password Check!!"
+fi
+
