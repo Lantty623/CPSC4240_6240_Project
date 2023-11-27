@@ -10,7 +10,9 @@ def main():
     # Set up argument parsing
     parser = argparse.ArgumentParser(description="Encrypt or decrypt files and directories.")
     parser.add_argument("path", help="Path to the file or directory to process")
-    parser.add_argument("base_folder", help="Base folder for encrypted/decrypted files")
+    #parser.add_argument("base_folder", help="Base folder for encrypted/decrypted files")
+    parser.add_argument("base_folder", nargs='?', default=os.getcwd(),
+                        help="Base folder for encrypted/decrypted files (defaults to current directory if not provided)")
 
     # Set up mutually exclusive group for -e/--encrypt and -d/--decrypt
     mode_group = parser.add_mutually_exclusive_group(required=True)

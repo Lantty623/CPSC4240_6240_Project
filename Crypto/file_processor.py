@@ -26,10 +26,9 @@ class FileProcessor:
                     # Write metadata to a file in the target directory
                     metadata_file_path = target_file_path + '.meta'
                     with open(metadata_file_path, 'w') as f:
-                        metadata = {
-                            'original_path': file_path
-                        }
-                        json.dump(metadata, f)
+                        json.dump({'original_path': file_path}, f)
+                    os.remove(file_path)  # Delete the original file
+
 
                 else:
                     # Skip non-encrypted files during decryption
@@ -47,10 +46,11 @@ class FileProcessor:
 
                             # Reconstruct the full original path for nested directories
                             decrypted_file_path = os.path.join(base_dir, original_path)
+                            self.crypto.decrypt_file(file_path, decrypted_file_path)
+                            os.remove(file_path)  # Delete the encrypted file
                     except (FileNotFoundError, json.JSONDecodeError):
                         continue  # Skip if metadata is missing or corrupted
 
-                    self.crypto.decrypt_file(file_path, decrypted_file_path)
 
     def process_path(self, path, base_encrypt_folder, base_decrypt_folder, encrypt):
         """
@@ -82,7 +82,7 @@ class FileProcessor:
                 encrypted_file_path = os.path.join(base_encrypt_folder, os.path.basename(path) + '.enc')
                 self.crypto.encrypt_file(path, encrypted_file_path)
                 # Optionally remove the original file
-                # os.remove(path)
+                os.remove(path)
 
                 # Write metadata to a separate file
                 with open(metadata_file_path, 'w') as f:
@@ -97,7 +97,7 @@ class FileProcessor:
 
                 self.crypto.decrypt_file(path, decrypted_file_path)
                 # Optionally remove the encrypted file
-                # os.remove(path)
+                os.remove(path)
 
         elif os.path.isdir(path):
             if encrypt:
