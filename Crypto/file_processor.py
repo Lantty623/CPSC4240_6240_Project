@@ -16,6 +16,10 @@ class FileProcessor:
             os.makedirs(target_root_dir, exist_ok=True)
 
             for file in files:
+                # Skip .password.txt file
+                if file == '.password.txt':
+                    continue
+
                 file_path = os.path.join(root, file)
 
                 if encrypt:
