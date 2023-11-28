@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Show a directory selection dialog with zenity
+selected_folder=$(zenity --file-selection --directory --title="Select a Folder to unlock")
+
+# Check if the user clicked "Cancel"
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+# Check if the selected folder contains a .password file
+password_file="$selected_folder/.password.txt"
+if [ -f "$password_file" ]; then
+    # Read the content of the .password file
+    folderpw=$(head -n 1 $password_file)
+
+    # Run zenity to get the password
+    password_result=$(zenity --password --title="Enter Password" --text="Enter your password:" --width=300)
+
+    # Check if zenity was successful
+    if [ $? -eq 0 ]; then
+        entered_password=$(echo "$password_result" | tr -d '\n')  # Remove newline characters
+        enteredpw=$(hashtest $entered_password)
+        # Check if entered password matches the one in the .password file
+        if [ "$enteredpw" != "$folderpw" ]; then
+            zenity --info --title="Incorrect Password" --text="Please enter correct password to unlock."
+            exit 1
+        fi
+    else
+        exit 1
+    fi
+
+    rm "$password_file"
+    zenity --info --title="Message" --text="Folder unlocked successfully!!"
+else 
+    zenity --info --title="Message" --text="Folder was already unlocked!!"
+fi

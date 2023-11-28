@@ -10,20 +10,7 @@ fi
 
 # Check if the selected folder contains a .password file
 password_file="$selected_folder/.password.txt"
-if [ ! -f "$password_file" ]; then
-    # Run zenity to get the password
-    password_result=$(zenity --password --title="Enter Password" --text="Enter your password:" --width=300)
-    # password=$(echo "$password_result" | tr -d '\n')  # Remove newline characters
-
-    # Check if zenity was successful
-    if [ $? -eq 0 ]; then
-        password=$(echo "$password_result" | tr -d '\n')  # Remove newline characters
-    else
-        exit 1
-    fi
-
-    python3 ~/.local/share/nautilus/commands/securefolder.py "$selected_folder" "$password"
-else
+if [ -f "$password_file" ]; then
     # Read the content of the .password file
     folderpw=$(head -n 1 $password_file)
 
@@ -36,13 +23,24 @@ else
         enteredpw=$(hashtest $entered_password)
         # Check if entered password matches the one in the .password file
         if [ "$enteredpw" != "$folderpw" ]; then
-            zenity --info --title="Incorrect Password" --text="Please enter correct password to continue."
+            zenity --info --title="Incorrect Password" --text="Please enter correct password to decrypt the folder."
             exit 1
         fi
     else
         exit 1
     fi
 
-    zenity --info --title="Check" --text="Successfull Password Check!!"
+    rm "$password_file"
+    zenity --info --title="Message" --text="Folder unlocked successfully!!"
 fi
 
+# Extract the parent directory
+parent_folder=$(dirname "$selected_folder")
+
+# Call python code to decrypt the folder
+python3 ~/.local/share/nautilus/commands/main.py -d $selected_folder $parent_folder
+
+zenity --info --title="Message" --text="Folder decryption successfully!!"
+
+# Open the selected folder using the default file manager
+xdg-open "$selected_folder"

@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Show a directory selection dialog with zenity
+selected_folder=$(zenity --file-selection --directory --title="Select a directory")
+
+# Check if the user clicked "Cancel"
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+# Ask the user for yes or no
+zenity --question --text="Do you want to encrypt the folder contents within the same folder: $selected_folder?"
+
+# Check the user's response
+if [ $? -eq 0 ]; then
+    # Extract the parent directory
+    parent_folder=$(dirname "$selected_folder")
+    # Your code to proceed with the selected directory goes here
+    python3 ~/.local/share/nautilus/commands/main.py -e $selected_folder $parent_folder
+
+    # Open the selected folder using the default file manager
+    xdg-open "$selected_folder"
+
+else
+    # Show a directory selection dialog with zenity
+    destination_folder=$(zenity --file-selection --directory --title="Select a destination directory")
+
+    # Check if the user clicked "Cancel"
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
+
+    python3 ~/.local/share/nautilus/commands/main.py -e $selected_folder $destination_folder
+
+    # Open the destination folder using the default file manager
+    xdg-open "$destination_folder"
+
+fi

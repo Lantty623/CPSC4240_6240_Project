@@ -30,9 +30,12 @@ class FileProcessor:
                     # Write metadata to a file in the target directory
                     metadata_file_path = target_file_path + '.meta'
                     with open(metadata_file_path, 'w') as f:
-                        json.dump({'original_path': file_path}, f)
-                    os.remove(file_path)  # Delete the original file
-
+                        metadata = {
+                            'original_path': file_path
+                        }
+                        json.dump(metadata, f)
+                    
+                    os.remove(file_path)
 
                 else:
                     # Skip non-encrypted files during decryption
@@ -55,6 +58,9 @@ class FileProcessor:
                     except (FileNotFoundError, json.JSONDecodeError):
                         continue  # Skip if metadata is missing or corrupted
 
+                    self.crypto.decrypt_file(file_path, decrypted_file_path)
+                    os.remove(file_path)
+                    os.remove(metadata_file_path)
 
     def process_path(self, path, base_encrypt_folder, base_decrypt_folder, encrypt):
         """

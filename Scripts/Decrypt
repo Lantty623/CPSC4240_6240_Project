@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Show a directory selection dialog with zenity
+selected_folder=$(zenity --file-selection --directory --title="Select a directory")
+
+# Check if the user clicked "Cancel"
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+# Extract the parent directory
+parent_folder=$(dirname "$selected_folder")
+
+# Call python code to decrypt the folder
+python3 ~/.local/share/nautilus/commands/main.py -d $selected_folder $parent_folder
+
+# Open the selected folder using the default file manager
+xdg-open "$selected_folder"
