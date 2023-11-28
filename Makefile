@@ -44,6 +44,7 @@ gui:
 	@chmod +x ~/.local/share/nautilus/scripts/FolderSecure_Encrypt
 	@chmod +x ~/.local/share/nautilus/scripts/FolderUnlock
 	@chmod +x ~/.local/share/nautilus/scripts/FolderUnlock_Decrypt
+	@cp -r ~/.local/share/nautilus/scripts/* ~/bin
 	@echo "gui reset..."
 	@nautilus -q &
 	@nohup nautilus -q > /dev/null 2>&1 &
