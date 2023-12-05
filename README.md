@@ -48,7 +48,7 @@
   - For running encryptions/decryptions
     - go to the folder that has downloaded code and go to Crypto folder
     - run "Python3 main.py" with arguments:
-      - " -e" for encryption or " -d" 
-      - "path/to/folder/to/encrypt"
+      - " -e" for encryption or " -d" for decryption
+      - "path/to/folder/to/encrypt" or path-to-decrypt
       - "destination/folder/path"
 
